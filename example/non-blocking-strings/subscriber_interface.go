@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log/slog"
 	"time"
 )
 
@@ -30,7 +29,6 @@ func (s *StringSubscriber) GetChannel() chan<- string {
 func (s *StringSubscriber) StartListening(fun func(string)) {
 	go func(fu func(string)) {
 		for event := range s.c {
-			slog.Info("received", "id", s.id, "event", event)
 			fu(event)
 		}
 	}(fun)
