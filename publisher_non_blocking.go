@@ -26,19 +26,24 @@ type NonBlockingPublisher[T any] struct {
 	// wait group to ensure all subscriber notifications are processed before accepting new events.
 	wg sync.WaitGroup
 
-	// wait group to ensure all events are processed before shutdown. Used in DrainAndStop.
+	// wait group to ensure all events are processed before shutdown. Used in DrainThenStop.
 	shutdownWg sync.WaitGroup
 
 	// mutex to protect access to the subscribers map.
 	mu sync.RWMutex
+
+	// structured logger for logging events and errors.
+	logger *slog.Logger
 }
 
 // NewNonBlockingPublisher creates a new Publisher instance.
 func NewNonBlockingPublisher[T any]() *NonBlockingPublisher[T] {
+	l := slog.New(slog.DiscardHandler)
 	return &NonBlockingPublisher[T]{
 		subscribers: make(map[string]NonBlockingSubscriber[T]),
 		eventChan:   make(chan T),
 		cancel:      make(chan struct{}),
+		logger:      l,
 	}
 }
 
@@ -66,11 +71,17 @@ func (d *NonBlockingPublisher[T]) Start() chan<- T {
 	return d.eventChan
 }
 
-// DrainAndStop closes the event channel and waits for all subscribers to finish processing.
-func (d *NonBlockingPublisher[T]) DrainAndStop() {
+// DrainThenStop closes the event channel and waits for all subscribers to finish processing.
+func (d *NonBlockingPublisher[T]) DrainThenStop() {
 	close(d.eventChan)
 	d.wg.Wait()
 	d.shutdownWg.Wait()
+}
+
+// Halt stops the publisher immediately. It closes the event channel and cancels any in-progress events.
+func (d *NonBlockingPublisher[T]) Halt() {
+	close(d.eventChan)
+	d.Cancel()
 }
 
 // RegisterSubscriber registers a new subscriber to receive updates.
@@ -113,10 +124,10 @@ func (d *NonBlockingPublisher[T]) NotifySubscribers(ctx context.Context, e T) {
 				c := o.GetChannel()
 				select {
 				case c <- e:
-					slog.Info("dlvrd", "id", o.GetId(), "event", e)
+					d.logger.Info("delivered", "id", o.GetId(), "event", e)
 
 				case <-to.Done():
-					slog.Warn("ntdlr", "id", o.GetId(), "event", e, "err", to.Err())
+					d.logger.Warn("not delivered", "id", o.GetId(), "event", e, "err", to.Err())
 				}
 			})
 		}(ctx, subscribersCopy[i])
@@ -129,6 +140,12 @@ func (d *NonBlockingPublisher[T]) SubscriberCount() int {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
 	return len(d.subscribers)
+}
+
+// Cancel stops the publisher from processing any new events. This does not close the event channel, so any events
+// already in the channel will still be processed.
+func (d *NonBlockingPublisher[T]) Cancel() {
+	d.cancel <- struct{}{}
 }
 
 // subscriberReadCopy makes a copy of the current subscribers in a thread-safe manner.
@@ -145,14 +162,15 @@ func (d *NonBlockingPublisher[T]) subscriberReadCopy() []NonBlockingSubscriber[T
 	return subscribersCopy
 }
 
-// Cancel stops the publisher from processing any new events. This does not close the event channel, so any events
-// already in the channel will still be processed.
-func (d *NonBlockingPublisher[T]) Cancel() {
-	d.cancel <- struct{}{}
+func (d *NonBlockingPublisher[T]) SetLogger(logger *slog.Logger) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	d.logger = logger
 }
 
-// Halt stops the publisher immediately. It closes the event channel and cancels any in-progress events.
-func (d *NonBlockingPublisher[T]) Halt() {
-	close(d.eventChan)
-	d.Cancel()
+func (d *NonBlockingPublisher[T]) GetLogger() *slog.Logger {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	return d.logger
 }
