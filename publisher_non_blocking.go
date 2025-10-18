@@ -9,24 +9,26 @@ import (
 
 var ErrSubscriberExists = errors.New("subscriber already registered with this publisher")
 
-// NonBlockingPublisher is a generic implementation of the observer pattern. It will notify all registered subscribers of
-// new events. This is based on the documentation here:
+// NonBlockingPublisher is a generic implementation of the observer pattern. It will notify all registered
+// subscribers of new events. This is based on the documentation here:
 // https://refactoring.guru/design-patterns/observer
 type NonBlockingPublisher[T any] struct {
 
 	// map of subscribers, keyed by their unique ID.
 	subscribers map[string]NonBlockingSubscriber[T]
 
-	// channel for incoming events to be published to subscribers.
+	// eventChan is the primary channel for which incoming events are received and then deliver
+	// to each of the subscribers.
 	eventChan chan T
 
-	// channel to signal cancellation of event processing.
+	// cancel chan is created as a cancel context and passed down to the threads that are
+	// creating to deliver events.
 	cancel chan struct{}
 
-	// wait group to ensure all subscriber notifications are processed before accepting new events.
+	// WaitGroup to ensure all subscriber notifications are processed before accepting new events.
 	wg sync.WaitGroup
 
-	// wait group to ensure all events are processed before shutdown. Used in DrainThenStop.
+	// WaitGroup used to ensure all events are processed before shutdown. Used in DrainThenStop.
 	shutdownWg sync.WaitGroup
 
 	// mutex to protect access to the subscribers map.
@@ -73,64 +75,76 @@ func (d *NonBlockingPublisher[T]) Start() chan<- T {
 
 // DrainThenStop closes the event channel and waits for all subscribers to finish processing.
 func (d *NonBlockingPublisher[T]) DrainThenStop() {
-	close(d.eventChan)
+	if d.eventChan != nil {
+		close(d.eventChan)
+	}
+
 	d.wg.Wait()
 	d.shutdownWg.Wait()
 }
 
 // Halt stops the publisher immediately. It closes the event channel and cancels any in-progress events.
 func (d *NonBlockingPublisher[T]) Halt() {
-	close(d.eventChan)
+	if d.eventChan != nil {
+		close(d.eventChan)
+	}
+
 	d.Cancel()
 }
 
-// RegisterSubscriber registers a new subscriber to receive updates.
+// AddSubscriber registers a new subscriber to receive updates.
 // It returns an error if a subscriber with the same ID.
-func (d *NonBlockingPublisher[T]) RegisterSubscriber(obs NonBlockingSubscriber[T]) error {
+func (d *NonBlockingPublisher[T]) AddSubscriber(sub NonBlockingSubscriber[T]) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	id := obs.GetId()
+	id := sub.GetID()
 
 	if _, exists := d.subscribers[id]; exists {
 		return ErrSubscriberExists
 	}
 
-	d.subscribers[id] = obs
+	d.subscribers[id] = sub
 	return nil
 }
 
-// UnregisterSubscriber removes a subscriber from the list of subscribers.
+// RemoveSubscriber removes a subscriber from the list of subscribers.
 // If the subscriber is not found, it does nothing.
-func (d *NonBlockingPublisher[T]) UnregisterSubscriber(obs Subscriber[T]) {
+func (d *NonBlockingPublisher[T]) RemoveSubscriber(id string) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	id := obs.GetId()
 	delete(d.subscribers, id)
+	slog.Info("unregistered subscriber", "id", id)
 }
 
 // NotifySubscribers notifies all registered subscribers of a new event.
 func (d *NonBlockingPublisher[T]) NotifySubscribers(ctx context.Context, e T) {
 	subscribersCopy := d.subscriberReadCopy()
 
+	if len(subscribersCopy) == 0 {
+		d.logger.Warn("no subscribers to notify", "event", e)
+		return
+	}
+
 	for i := range subscribersCopy {
-		go func(_ctx context.Context, o NonBlockingSubscriber[T]) {
+		go func(sub NonBlockingSubscriber[T]) {
 			d.wg.Go(func() {
 
-				to, cancel := context.WithTimeout(_ctx, o.GetTimeout())
+				to, cancel := context.WithTimeout(ctx, sub.GetTimeoutThreshold())
 				defer cancel()
 
-				c := o.GetChannel()
+				c := sub.GetChannel()
 				select {
 				case c <- e:
-					d.logger.Info("delivered", "id", o.GetId(), "event", e)
+					d.logger.Info("-->", "id", sub.GetID(), "event", e)
 
+				// if the context times out or is cancelled, log a warning
 				case <-to.Done():
-					d.logger.Warn("not delivered", "id", o.GetId(), "event", e, "err", to.Err())
+					d.logger.Warn("", "id", sub.GetID(), "event", e, "err", to.Err())
 				}
 			})
-		}(ctx, subscribersCopy[i])
+		}(subscribersCopy[i])
 	}
 }
 
@@ -162,12 +176,14 @@ func (d *NonBlockingPublisher[T]) subscriberReadCopy() []NonBlockingSubscriber[T
 	return subscribersCopy
 }
 
+// SetLogger sets the structured logger for the publisher.
 func (d *NonBlockingPublisher[T]) SetLogger(logger *slog.Logger) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	d.logger = logger
 }
 
+// GetLogger returns the structured logger for the publisher.
 func (d *NonBlockingPublisher[T]) GetLogger() *slog.Logger {
 	d.mu.Lock()
 	defer d.mu.Unlock()
