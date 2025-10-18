@@ -30,6 +30,6 @@ This makes it ideal for use cases where event throughput and concurrency are imp
 To install the package, run:
 
 ```bash
-go get github.com/jeremyforan/go_observer_pattern
+go get github.com/jeremyforan/go-observer-pattern
 ```
 
