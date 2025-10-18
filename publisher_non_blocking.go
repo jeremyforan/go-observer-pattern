@@ -115,12 +115,12 @@ func (d *NonBlockingPublisher[T]) RemoveSubscriber(id string) {
 	defer d.mu.Unlock()
 
 	delete(d.subscribers, id)
-	slog.Info("unregistered subscriber", "id", id)
+	d.logger.Info("unregistered subscriber", "id", id)
 }
 
 // NotifySubscribers notifies all registered subscribers of a new event.
 func (d *NonBlockingPublisher[T]) NotifySubscribers(ctx context.Context, e T) {
-	subscribersCopy := d.subscriberReadCopy()
+	subscribersCopy := d.subscriberReadSafeCopy()
 
 	if len(subscribersCopy) == 0 {
 		d.logger.Warn("no subscribers to notify", "event", e)
@@ -149,7 +149,7 @@ func (d *NonBlockingPublisher[T]) NotifySubscribers(ctx context.Context, e T) {
 }
 
 // SubscriberCount returns the number of registered subscribers. Used primarily to set the initial capacity of the slice in
-// subscriberReadCopy.
+// subscriberReadSafeCopy.
 func (d *NonBlockingPublisher[T]) SubscriberCount() int {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -162,8 +162,8 @@ func (d *NonBlockingPublisher[T]) Cancel() {
 	d.cancel <- struct{}{}
 }
 
-// subscriberReadCopy makes a copy of the current subscribers in a thread-safe manner.
-func (d *NonBlockingPublisher[T]) subscriberReadCopy() []NonBlockingSubscriber[T] {
+// subscriberReadSafeCopy makes a copy of the current subscribers in a thread-safe manner.
+func (d *NonBlockingPublisher[T]) subscriberReadSafeCopy() []NonBlockingSubscriber[T] {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
 

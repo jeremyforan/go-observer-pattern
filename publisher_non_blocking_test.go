@@ -6,43 +6,6 @@ import (
 	"time"
 )
 
-type SubscriberMock struct {
-	id string
-	c  chan string
-	t  time.Duration
-	f  func(string)
-}
-
-func NewSubscriberMock(id string, t time.Duration) SubscriberMock {
-	return SubscriberMock{
-		id: id,
-		c:  make(chan string),
-		t:  t,
-	}
-}
-
-func (s SubscriberMock) GetID() string {
-	return s.id
-}
-
-func (s SubscriberMock) GetChannel() chan<- string {
-	return s.c
-}
-
-func (s SubscriberMock) GetTimeoutThreshold() time.Duration {
-	return s.t
-}
-
-func (s SubscriberMock) SetHandler(f func(string)) {
-	s.f = f
-	go func() {
-		for event := range s.c {
-			slog.Info(event)
-			s.f(event)
-		}
-	}()
-}
-
 func TestNewNonBlockingPublisher(t *testing.T) {
 	pub := NewNonBlockingPublisher[string]()
 
@@ -110,4 +73,43 @@ func TestNewNonBlockingPublisher(t *testing.T) {
 
 		pub.DrainThenStop()
 	})
+}
+
+type SubscriberMock struct {
+	id string
+	c  chan string
+	t  time.Duration
+	l  *slog.Logger
+	f  func(string)
+}
+
+func NewSubscriberMock(id string, t time.Duration) SubscriberMock {
+	return SubscriberMock{
+		id: id,
+		c:  make(chan string),
+		t:  t,
+		l:  slog.Default(),
+	}
+}
+
+func (s SubscriberMock) GetID() string {
+	return s.id
+}
+
+func (s SubscriberMock) GetChannel() chan<- string {
+	return s.c
+}
+
+func (s SubscriberMock) GetTimeoutThreshold() time.Duration {
+	return s.t
+}
+
+func (s SubscriberMock) SetHandler(f func(string)) {
+	s.f = f
+	go func() {
+		for event := range s.c {
+			s.l.Info(event)
+			s.f(event)
+		}
+	}()
 }
