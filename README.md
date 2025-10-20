@@ -1,12 +1,12 @@
 # Go Observer Pattern
 
-A lightweight, non-blocking generic implementation of the Observer Pattern for Go, inspired by Refactoring Guru’s design pattern documentation.
+A lightweight, non-blocking generic implementation of the Observer Pattern for Go, inspired by [Refactoring Guru’s design pattern](https://refactoring.guru/design-patterns/observer).
 
-This module provides a thread-safe, event-driven pub/sub mechanism that allows multiple subscribers to asynchronously receive updates from a publisher without blocking event emission.
+This package provides a thread-safe, event-driven pub/sub mechanism that allows multiple subscribers to asynchronously receive updates from a publisher without blocking event emission.
 
 ## Overview
 
-The NonBlockingPublisher[T] type implements a generic, concurrent-safe publisher that distributes events of any type T to registered subscribers implementing the NonBlockingSubscriber[T] interface.
+The **NonBlockingPublisher[T]** type implements a generic, concurrent-safe publisher that distributes events of any **type T** to registered subscribers implementing the **NonBlockingSubscriber[T]** interface.
 
 Each subscriber receives events via its own channel and defines a timeout threshold for handling messages, ensuring that a slow or blocked subscriber won’t stall the entire event pipeline.
 
@@ -32,4 +32,142 @@ To install the package, run:
 ```bash
 go get github.com/jeremyforan/go-observer-pattern
 ```
+
+## Subscriber Interface
+
+Any subscriber must implement the NonBlockingSubscriber[T] interface. The interface is simple to implement:
+
+**GetID() string** must return a unique identifier for the subscriber. This ID is used by the publisher
+to manage subscribers (e.g., registering and unregistering). And it must be unique across all subscribers.
+The ID is used as the key in the publisher's internal map of subscribers.
+
+```go
+func (s *MySubscriber) GetID() string {
+    return s.id
+}
+```
+
+**GetChannel() chan<- T** is used to obtain the channel of the subscriber when an event/notice
+needs to be delivered to that subscriber. The publisher will send events to this channel when
+notifying subscribers. The subscriber is responsible for reading from this channel.
+
+```go
+func (s *MySubscriber) GetChannel() chan<- MyEventType {
+    return s.channel
+}
+```
+
+**GetTimeoutThreshold() time.Duration** expects a time.duration which is used to create a context.WithTimeout for each event/notice.
+This ensures that an event will eventually fail instead of blocking a thread indefinitely.
+If the subscriber does not process the event within the timeout duration, the event/notice is cancelled.
+
+```go
+func (s *MySubscriber) GetTimeoutThreshold() time.Duration {
+    return s.timeoutDuration
+}
+```
+
+A basic example implementation of a subscriber could look like this:
+
+```go
+type MySubscriber struct {
+    id              string
+    channel         chan<- MyEventType
+    timeoutDuration time.Duration
+}   
+ 
+func (s *MySubscriber) GetID() string {
+    return s.id
+}
+func (s *MySubscriber) GetChannel() chan<- MyEventType {
+    return s.channel
+}
+func (s *MySubscriber) GetTimeoutThreshold() time.Duration {
+    return s.timeoutDuration
+}
+```
+
+When the publisher sends an event, it will use the subscriber's channel to deliver the event.
+The subscriber must read from this channel to receive events.   
+
+You may implement any logic you want in the subscriber to handle the received events.
+
+```go
+func (s *MySubscriber) StartListening() {
+    go func() {
+        for event := range s.channel {
+            // Process the event
+            fmt.Printf("Subscriber %s received event: %v\n", s.id, event)
+        }
+    }()
+}
+```
+
+## Publisher Usage
+To use the NonBlockingPublisher[T], first create an instance of it:
+
+```go
+// example of a publisher that accepts string as the type
+publisher := NewNonBlockingPublisher[string]()
+```
+
+### Adding and removeing subscribers
+
+Then, create and adding subscribers:
+
+```go
+s1 := &MySubscriber{
+    id:              "subscriber1",
+    channel:         make(chan MyEventType),   
+    timeoutDuration: 2 * time.Second,
+}
+
+s1.StartListening()
+
+publisher.AddSubscriber(s1)
+```
+
+removing a subscriber is just as easy:
+
+```go
+publisher.RemoveSubscriber(s1.GetID())
+```
+
+### Publishing events
+Starting the publisher will return a channel that is used to publish the events:
+
+```go
+eventChannel := publisher.Start()
+```
+
+Anything that sends events to `eventChannel` will be published to all registered subscribers:
+
+```go
+eventChannel <- "let everyone know"
+```
+
+
+When you are done publishing events, you can stop the publisher gracefully:
+
+```go
+publisher.DrainThenStop()
+```
+
+or halt it immediately which abandons any pending events:
+
+```go
+publisher.Halt()
+```
+
+## Logging
+This module uses Go's standard `log/slog` package for structured logging. By default the logger is set to the Discard handler, which means no logs will be output.
+You can customize the logger by using the `SetLogger` method on the publisher:
+
+```go
+l := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+publisher.SetLogger(l)
+```
+
+This allows you to integrate the publisher's logging with your application's logging strategy.
+
 
