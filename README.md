@@ -140,9 +140,7 @@ func (s *NoticeSubscriber) GetChannel() chan<- UniqueNoticeType {
 func (s *NoticeSubscriber) GetTimeoutThreshold() time.Duration {
 	return s.t
 }
-
 ```
-
 
 ## Subscriber Interface
 
@@ -227,17 +225,8 @@ publisher := NewNonBlockingPublisher[string]()
 Then, create and adding subscribers:
 
 ```go
-s1 := &MySubscriber{
-    id:              "subscriber1",
-    channel:         make(chan MyEventType),   
-    timeoutDuration: 2 * time.Second,
-}
-
-s1.StartListening()
-
 publisher.AddSubscriber(s1)
 ```
-
 removing a subscriber is just as easy:
 
 ```go
@@ -256,7 +245,6 @@ Anything that sends events to `eventChannel` will be published to all registered
 ```go
 eventChannel <- "let everyone know"
 ```
-
 
 When you are done publishing events, you can stop the publisher gracefully:
 
@@ -287,7 +275,21 @@ publisher.SetLogger(l)
 
 This allows you to integrate the publisher's logging with your application's logging strategy.
 
-## Development
+### Error Handling
+
+There is currently only one type of error returned by the publisher methods: `ErrSubscriberExists`.
+This error is returned when attempting to add a subscriber with an ID that already exists in the publisher's subscriber list. 
+Because subscriber IDs must be unique, this error helps prevent duplicate registrations.
+
+```go
+err := publisher.AddSubscriber(someSubscriber)
+if errors.Is(err, go_observer_pattern.ErrSubscriberExists) {
+    fmt.Println("subscriber already exists")
+    return
+}
+```
+
+## On-going Development
 
 I am on the fence about removing the blocking version of the publisher since this non-blocking version is more versatile.
 Feel free to open an issue or a pull request if you have suggestions or improvements!
