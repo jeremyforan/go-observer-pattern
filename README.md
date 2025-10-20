@@ -47,10 +47,11 @@ import (
 
 func main() {
 
-	// Create a non-blocking publisher with string events
+	// Create a non-blocking publisher with UniqueNoticeType as the event type
 	publisher := go_observer_pattern.NewNonBlockingPublisher[UniqueNoticeType]()
 
-	// Optionally, set a logger to capture publisher events. By default, slog.DiscardHandler is used.
+	// Optionally, set a logger to capture publisher events. 
+	// By default, slog.DiscardHandler is used.
 	publisher.SetLogger(slog.Default())
 
 	//Start returns the channel that can be used to publish events
