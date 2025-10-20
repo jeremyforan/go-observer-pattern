@@ -11,20 +11,20 @@ The **NonBlockingPublisher[T]** type implements a generic, concurrent-safe publi
 Each subscriber receives events via its own channel and defines a timeout threshold for handling messages, ensuring that a slow or blocked subscriber won’t stall the entire event pipeline.
 
 This makes it ideal for use cases where event throughput and concurrency are important, such as:
-   
-    -	System monitoring and notifications
-    -	Asynchronous background job processing
-    -	Event streaming within microservices
-    -	Real-time analytics and telemetry pipelines
+ - System monitoring and notifications 
+ - Asynchronous background job processing 
+ - Event streaming within microservices 
+ - Real-time analytics and telemetry pipelines
+
 
 ### Features
-    -	Type-safe generics (any-typed publisher and subscriber)
-    -	Non-blocking event dispatch using goroutines and timeouts
-    -	Thread-safe subscriber management
-    -   Graceful shutdown via DrainThenStop()
-    -	Immediate halt via Halt()
-    -	Structured logging using Go’s standard log/slog package
-    -	Context-aware cancellation and timeout control per subscriber
+- Type-safe generics (any-typed publisher and subscriber)
+- Non-blocking event dispatch using goroutines and timeouts 
+- Thread-safe subscriber management 
+- Graceful shutdown via DrainThenStop()
+- Structured logging using Go’s standard log/slog package 
+- Context-aware cancellation and timeout control per subscriber 
+- Zero external dependencies
 
 ## Installation
 To install the package, run:
