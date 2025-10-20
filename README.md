@@ -275,10 +275,21 @@ This module uses Go's standard `log/slog` package for structured logging. By def
 You can customize the logger by using the `SetLogger` method on the publisher:
 
 ```go
-l := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+opts := &slog.HandlerOptions{
+	Level: slog.LevelDebug
+}
+
+h := slog.NewTextHandler(os.Stdout, opts)
+l := slog.New(h)
+
 publisher.SetLogger(l)
 ```
 
 This allows you to integrate the publisher's logging with your application's logging strategy.
+
+## Development
+
+I am on the fence about removing the blocking version of the publisher since this non-blocking version is more versatile.
+Feel free to open an issue or a pull request if you have suggestions or improvements!
 
 
