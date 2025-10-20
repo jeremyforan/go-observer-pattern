@@ -2,9 +2,22 @@ package main
 
 import (
 	"fmt"
-	"go-observer-pattern"
 	"log/slog"
 	"time"
+
+	"github.com/jeremyforan/go-observer-pattern"
+)
+
+// Event is a general interface we will use to demonstrate the
+type Event interface {
+	EventType() EventType
+}
+
+type EventType string
+
+const (
+	eventUpdate  EventType = "UPDATE"
+	eventUpgrade EventType = "UPGRADE"
 )
 
 func main() {
@@ -70,17 +83,6 @@ func main() {
 	// wait for all subscribers to finish processing or timeout before exiting main.
 
 }
-
-type Event interface {
-	EventType() EventType
-}
-
-type EventType string
-
-const (
-	eventUpdate  EventType = "UPDATE"
-	eventUpgrade EventType = "UPGRADE"
-)
 
 type UpdateEvent struct {
 	Details string

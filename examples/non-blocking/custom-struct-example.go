@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"go-observer-pattern"
 	"log/slog"
 	"time"
+
+	"github.com/jeremyforan/go-observer-pattern"
 )
 
 func main() {

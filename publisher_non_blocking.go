@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"sync"
+	"time"
 )
 
 var ErrSubscriberExists = errors.New("subscriber already registered with this publisher")
@@ -75,6 +76,8 @@ func (d *NonBlockingPublisher[T]) Start() chan<- T {
 
 // DrainThenStop closes the event channel and waits for all subscribers to finish processing.
 func (d *NonBlockingPublisher[T]) DrainThenStop() {
+	time.Sleep(10 * time.Millisecond)
+
 	if d.eventChan != nil {
 		close(d.eventChan)
 	}
@@ -180,6 +183,7 @@ func (d *NonBlockingPublisher[T]) subscriberReadSafeCopy() []NonBlockingSubscrib
 func (d *NonBlockingPublisher[T]) SetLogger(logger *slog.Logger) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
+
 	d.logger = logger
 }
 

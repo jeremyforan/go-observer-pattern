@@ -1,7 +1,7 @@
 package main
 
 import (
-	"go-observer-pattern"
+	"github.com/jeremyforan/go-observer-pattern"
 )
 
 func main() {
