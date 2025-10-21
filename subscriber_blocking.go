@@ -1,6 +1,6 @@
-package go_observer_pattern
+package observer
 
 type Subscriber[T any] interface {
-	GetId() string
+	GetID() string
 	ReceiveUpdate(T)
 }

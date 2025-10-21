@@ -6,7 +6,7 @@ type StringSubscriber struct {
 	id string
 }
 
-func (s *StringSubscriber) GetId() string {
+func (s *StringSubscriber) GetID() string {
 	return s.id
 }
 

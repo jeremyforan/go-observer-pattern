@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/jeremyforan/go-observer-pattern"
+	"github.com/jeremyforan/observer"
 )
 
 func main() {
-	publisher := go_observer_pattern.NewPublisher[string]()
+	publisher := observer.NewPublisher[string]()
 	defer publisher.Stop()
 
 	eventChan := publisher.Start()

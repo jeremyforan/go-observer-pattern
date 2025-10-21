@@ -1,4 +1,4 @@
-package go_observer_pattern
+package observer
 
 import (
 	"context"

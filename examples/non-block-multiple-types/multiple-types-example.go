@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/jeremyforan/go-observer-pattern"
+	"github.com/jeremyforan/observer"
 )
 
 // Event is a general interface we will use to demonstrate the
@@ -23,7 +23,7 @@ const (
 func main() {
 
 	// Create a non-blocking publisher with string events
-	publisher := go_observer_pattern.NewNonBlockingPublisher[Event]()
+	publisher := observer.NewNonBlockingPublisher[Event]()
 
 	// Optionally, set a logger to capture publisher events. By default, slog.DiscardHandler is used.
 	publisher.SetLogger(slog.Default())

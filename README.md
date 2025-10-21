@@ -294,4 +294,3 @@ if errors.Is(err, go_observer_pattern.ErrSubscriberExists) {
 I am on the fence about removing the blocking version of the publisher since this non-blocking version is more versatile.
 Feel free to open an issue or a pull request if you have suggestions or improvements!
 
-

@@ -5,13 +5,13 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/jeremyforan/go-observer-pattern"
+	"github.com/jeremyforan/observer"
 )
 
 func main() {
 
 	// Create a non-blocking publisher with string events
-	publisher := go_observer_pattern.NewNonBlockingPublisher[UniqueNoticeType]()
+	publisher := observer.NewNonBlockingPublisher[UniqueNoticeType]()
 
 	// Optionally, set a logger to capture publisher events. By default, slog.DiscardHandler is used.
 	publisher.SetLogger(slog.Default())

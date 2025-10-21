@@ -1,4 +1,4 @@
-package go_observer_pattern
+package observer
 
 import (
 	"errors"
@@ -57,7 +57,7 @@ func (d *Publisher[T]) RegisterSubscriber(obs Subscriber[T]) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	id := obs.GetId()
+	id := obs.GetID()
 	if _, exists := d.subscribers[id]; exists {
 		return errors.New("observer with this ID already registered")
 	}
@@ -71,7 +71,7 @@ func (d *Publisher[T]) UnregisterSubscriber(obs Subscriber[T]) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	id := obs.GetId()
+	id := obs.GetID()
 	delete(d.subscribers, id)
 }
 
@@ -95,4 +95,25 @@ func (d *Publisher[T]) NotifySubscribers(s T) {
 		}(subscribersCopy[i])
 	}
 	d.wg.Wait()
+}
+
+func (d *Publisher[T]) SubscriberCount() int {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+
+	return len(d.subscribers)
+}
+
+// subscriberReadSafeCopy makes a copy of the current subscribers in a thread-safe manner.
+func (d *Publisher[T]) subscriberReadSafeCopy() []Subscriber[T] {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+
+	subscribersCopy := make([]Subscriber[T], 0, d.SubscriberCount())
+
+	for id := range d.subscribers {
+		subscribersCopy = append(subscribersCopy, d.subscribers[id])
+	}
+
+	return subscribersCopy
 }

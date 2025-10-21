@@ -1,3 +1,3 @@
-module github.com/jeremyforan/go-observer-pattern
+module github.com/jeremyforan/observer
 
 go 1.25
