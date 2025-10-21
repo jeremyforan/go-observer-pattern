@@ -45,7 +45,7 @@ func main() {
 	pc <- endNotice
 
 	// Remove Paul from the subscriber list
-	publisher.RemoveSubscriber(s2.GetID())
+	publisher.RemoveSubscriber(s2.ID())
 
 	// Publish some more events
 	pc <- startNotice
@@ -91,14 +91,14 @@ func NewSubscriber(id string, t time.Duration) *NoticeSubscriber {
 
 // The following methods satisfy the NonBlockingSubscriber[T] interface
 
-func (s *NoticeSubscriber) GetID() string {
+func (s *NoticeSubscriber) ID() string {
 	return s.id
 }
 
-func (s *NoticeSubscriber) GetChannel() chan<- UniqueNoticeType {
+func (s *NoticeSubscriber) Channel() chan<- UniqueNoticeType {
 	return s.c
 }
 
-func (s *NoticeSubscriber) GetTimeoutThreshold() time.Duration {
+func (s *NoticeSubscriber) TimeoutThreshold() time.Duration {
 	return s.t
 }

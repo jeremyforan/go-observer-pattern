@@ -1,6 +1,6 @@
 package observer
 
 type Subscriber[T any] interface {
-	GetID() string
+	ID() string
 	ReceiveUpdate(T)
 }

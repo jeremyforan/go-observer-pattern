@@ -83,7 +83,7 @@ func main() {
 	pc <- endNotice
 
 	// Remove Paul from the subscriber list
-	publisher.RemoveSubscriber(s2.GetID())
+	publisher.RemoveSubscriber(s2.ID())
 
 	// Publish some more events
 	pc <- startNotice
@@ -129,15 +129,15 @@ func NewSubscriber(id string, t time.Duration) *NoticeSubscriber {
 
 // The following methods satisfy the NonBlockingSubscriber[T] interface
 
-func (s *NoticeSubscriber) GetID() string {
+func (s *NoticeSubscriber) ID() string {
 	return s.id
 }
 
-func (s *NoticeSubscriber) GetChannel() chan<- UniqueNoticeType {
+func (s *NoticeSubscriber) Channel() chan<- UniqueNoticeType {
 	return s.c
 }
 
-func (s *NoticeSubscriber) GetTimeoutThreshold() time.Duration {
+func (s *NoticeSubscriber) TimeoutThreshold() time.Duration {
 	return s.t
 }
 ```
@@ -146,32 +146,32 @@ func (s *NoticeSubscriber) GetTimeoutThreshold() time.Duration {
 
 Any subscriber must implement the NonBlockingSubscriber[T] interface. The interface is simple to implement:
 
-**GetID() string** must return a unique identifier for the subscriber. This ID is used by the publisher
+**ID() string** must return a unique identifier for the subscriber. This ID is used by the publisher
 to manage subscribers (e.g., registering and unregistering). And it must be unique across all subscribers.
 The ID is used as the key in the publisher's internal map of subscribers.
 
 ```go
-func (s *MySubscriber) GetID() string {
+func (s *MySubscriber) ID() string {
     return s.id
 }
 ```
 
-**GetChannel() chan<- T** is used to obtain the channel of the subscriber when an event/notice
+**Channel() chan<- T** is used to obtain the channel of the subscriber when an event/notice
 needs to be delivered to that subscriber. The publisher will send events to this channel when
 notifying subscribers. The subscriber is responsible for reading from this channel.
 
 ```go
-func (s *MySubscriber) GetChannel() chan<- MyEventType {
+func (s *MySubscriber) Channel() chan<- MyEventType {
     return s.channel
 }
 ```
 
-**GetTimeoutThreshold() time.Duration** expects a time.duration which is used to create a context.WithTimeout for each event/notice.
+**TimeoutThreshold() time.Duration** expects a time.duration which is used to create a context.WithTimeout for each event/notice.
 This ensures that an event will eventually fail instead of blocking a thread indefinitely.
 If the subscriber does not process the event within the timeout duration, the event/notice is cancelled.
 
 ```go
-func (s *MySubscriber) GetTimeoutThreshold() time.Duration {
+func (s *MySubscriber) TimeoutThreshold() time.Duration {
     return s.timeoutDuration
 }
 ```
@@ -185,13 +185,13 @@ type MySubscriber struct {
     timeoutDuration time.Duration
 }   
  
-func (s *MySubscriber) GetID() string {
+func (s *MySubscriber) ID() string {
     return s.id
 }
-func (s *MySubscriber) GetChannel() chan<- MyEventType {
+func (s *MySubscriber) Channel() chan<- MyEventType {
     return s.channel
 }
-func (s *MySubscriber) GetTimeoutThreshold() time.Duration {
+func (s *MySubscriber) TimeoutThreshold() time.Duration {
     return s.timeoutDuration
 }
 ```
@@ -230,7 +230,7 @@ publisher.AddSubscriber(s1)
 removing a subscriber is just as easy:
 
 ```go
-publisher.RemoveSubscriber(s1.GetID())
+publisher.RemoveSubscriber(s1.ID())
 ```
 
 ### Publishing events

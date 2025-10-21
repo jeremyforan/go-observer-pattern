@@ -101,7 +101,7 @@ func (d *NonBlockingPublisher[T]) AddSubscriber(sub NonBlockingSubscriber[T]) er
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	id := sub.GetID()
+	id := sub.ID()
 
 	if _, exists := d.subscribers[id]; exists {
 		return ErrSubscriberExists
@@ -134,17 +134,17 @@ func (d *NonBlockingPublisher[T]) NotifySubscribers(ctx context.Context, e T) {
 		go func(sub NonBlockingSubscriber[T]) {
 			d.wg.Go(func() {
 
-				to, cancel := context.WithTimeout(ctx, sub.GetTimeoutThreshold())
+				to, cancel := context.WithTimeout(ctx, sub.TimeoutThreshold())
 				defer cancel()
 
-				c := sub.GetChannel()
+				c := sub.Channel()
 				select {
 				case c <- e:
-					d.logger.Info("-->", "id", sub.GetID(), "event", e)
+					d.logger.Info("-->", "id", sub.ID(), "event", e)
 
 				// if the context times out or is cancelled, log a warning
 				case <-to.Done():
-					d.logger.Warn("", "id", sub.GetID(), "event", e, "err", to.Err())
+					d.logger.Warn("", "id", sub.ID(), "event", e, "err", to.Err())
 				}
 			})
 		}(subscribersCopy[i])
@@ -187,8 +187,8 @@ func (d *NonBlockingPublisher[T]) SetLogger(logger *slog.Logger) {
 	d.logger = logger
 }
 
-// GetLogger returns the structured logger for the publisher.
-func (d *NonBlockingPublisher[T]) GetLogger() *slog.Logger {
+// Logger returns the structured logger for the publisher.
+func (d *NonBlockingPublisher[T]) Logger() *slog.Logger {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 

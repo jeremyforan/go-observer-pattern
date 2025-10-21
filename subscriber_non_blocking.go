@@ -13,18 +13,18 @@ import "time"
 // Panics may occur if the subscriber closes it's channel before unregistering from the publisher.
 type NonBlockingSubscriber[T any] interface {
 
-	// GetID returns a unique identifier for the subscriber. This ID is used by the publisher
+	// ID returns a unique identifier for the subscriber. This ID is used by the publisher
 	// to manage subscribers (e.g., registering and unregistering). And it must be unique across all subscribers.
 	// THe ID is used as the key in the publisher's internal map of subscribers.
-	GetID() string
+	ID() string
 
-	// GetChannel is used to obtain the channel of the subscriber when an event/notice
+	// Channel is used to obtain the channel of the subscriber when an event/notice
 	// needs to be delivered to that subscriber. The publisher will send events to this channel when
 	// notifying subscribers. The subscriber is responsible for reading from this channel.
-	GetChannel() chan<- T
+	Channel() chan<- T
 
-	// GetTimeoutThreshold expects a time.duration which is used to create a context.WithTimeout for each event/notice.
+	// TimeoutThreshold expects a time.duration which is used to create a context.WithTimeout for each event/notice.
 	// This ensures that an event will eventually fail instead of blocking a thread indefinitely.
 	// If the subscriber does not process the event within the timeout duration, the event/notice is cancelled.
-	GetTimeoutThreshold() time.Duration
+	TimeoutThreshold() time.Duration
 }

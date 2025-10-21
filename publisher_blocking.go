@@ -57,7 +57,7 @@ func (d *Publisher[T]) RegisterSubscriber(obs Subscriber[T]) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	id := obs.GetID()
+	id := obs.ID()
 	if _, exists := d.subscribers[id]; exists {
 		return errors.New("observer with this ID already registered")
 	}
@@ -71,7 +71,7 @@ func (d *Publisher[T]) UnregisterSubscriber(obs Subscriber[T]) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	id := obs.GetID()
+	id := obs.ID()
 	delete(d.subscribers, id)
 }
 

@@ -99,15 +99,15 @@ func NewSubscriberMock(id string, t time.Duration) SubscriberMock {
 	}
 }
 
-func (s SubscriberMock) GetID() string {
+func (s SubscriberMock) ID() string {
 	return s.id
 }
 
-func (s SubscriberMock) GetChannel() chan<- string {
+func (s SubscriberMock) Channel() chan<- string {
 	return s.c
 }
 
-func (s SubscriberMock) GetTimeoutThreshold() time.Duration {
+func (s SubscriberMock) TimeoutThreshold() time.Duration {
 	return s.t
 }
 
