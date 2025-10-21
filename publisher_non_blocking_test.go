@@ -44,7 +44,7 @@ func TestNewNonBlockingPublisher(t *testing.T) {
 		synctest.Test(t, func(t *testing.T) {
 
 			const deliver = "event to deliver"
-			_ = pub.Start()
+			//_ = pub.Start()
 
 			//
 			//received := make(chan bool)
