@@ -15,6 +15,9 @@ var ErrSubscriberExists = errors.New("subscriber already registered with this pu
 // https://refactoring.guru/design-patterns/observer
 type NonBlockingPublisher[T any] struct {
 
+	// mutex to protect access to the subscribers map.
+	mu sync.RWMutex
+
 	// map of subscribers, keyed by their unique ID.
 	subscribers map[string]NonBlockingSubscriber[T]
 
@@ -31,9 +34,6 @@ type NonBlockingPublisher[T any] struct {
 
 	// WaitGroup used to ensure all events are processed before shutdown. Used in DrainThenStop.
 	shutdownWg sync.WaitGroup
-
-	// mutex to protect access to the subscribers map.
-	mu sync.RWMutex
 
 	// structured logger for logging events and errors.
 	logger *slog.Logger
