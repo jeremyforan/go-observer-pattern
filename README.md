@@ -4,6 +4,7 @@
 <p align="center">
 	<a href="https://goreportcard.com/badge/github.com/jeremyforan/go-observer-pattern"><img src="https://goreportcard.com/badge/github.com/jeremyforan/go-observer-pattern" /></a>
 	<img alt="GitHub License" src="https://img.shields.io/github/license/jeremyforan/observer">
+	<img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/jeremyforan/observer">
 </p>
 
 --- 
