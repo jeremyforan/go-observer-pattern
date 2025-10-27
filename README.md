@@ -15,8 +15,6 @@ A lightweight, non-blocking generic implementation of the Observer Pattern for G
 
 This package provides a thread-safe, event-driven pub/sub mechanism that allows multiple subscribers to asynchronously receive updates from a publisher without blocking event emission.
 
----
-
 ## Table of Contents
 - [Overview](#overview)
   * [Features](#features)
@@ -31,9 +29,6 @@ This package provides a thread-safe, event-driven pub/sub mechanism that allows 
 - [On-going Development](#on-going-development)
 
 ---
-
-✅ **Tip:** GitHub automatically generates these anchor links based on the section headers (case-insensitive, spaces replaced with hyphens).
-You can place this immediately after your project badges and before the “Overview” section for best readability.
 
 
 ## Overview
