@@ -11,8 +11,6 @@
 
 --- 
 
-A lightweight, non-blocking generic implementation of the Observer Pattern for Go, inspired by [Refactoring Guru’s design pattern](https://refactoring.guru/design-patterns/observer).
-
 This package provides a thread-safe, event-driven pub/sub mechanism that allows multiple subscribers to asynchronously receive updates from a publisher without blocking event emission.
 
 ## Table of Contents
