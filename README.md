@@ -6,6 +6,7 @@
 	<img alt="GitHub License" src="https://img.shields.io/github/license/jeremyforan/observer">
 	<img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/jeremyforan/observer">
 	<img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/jeremyforan/observer">
+	<img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/jeremyforan/observer/go.yml">
 </p>
 
 --- 
