@@ -15,6 +15,32 @@ A lightweight, non-blocking generic implementation of the Observer Pattern for G
 
 This package provides a thread-safe, event-driven pub/sub mechanism that allows multiple subscribers to asynchronously receive updates from a publisher without blocking event emission.
 
+Here’s the **Markdown anchor-linked Table of Contents** version — ready to drop right into your `README.md` on GitHub:
+
+---
+
+## Table of Contents
+
+1. [Overview](#overview)
+
+   * [Features](#features)
+2. [Installation](#installation)
+3. [Full Example](#full-example)
+4. [Subscriber Interface](#subscriber-interface)
+5. [Publisher Usage](#publisher-usage)
+   
+   * [Adding and Removing Subscribers](#adding-and-removeing-subscribers)
+   * [Publishing Events](#publishing-events)
+7. [Logging](#logging)
+8. [Error Handling](#error-handling)
+9. [On-going Development](#on-going-development)
+
+---
+
+✅ **Tip:** GitHub automatically generates these anchor links based on the section headers (case-insensitive, spaces replaced with hyphens).
+You can place this immediately after your project badges and before the “Overview” section for best readability.
+
+
 ## Overview
 
 The **NonBlockingPublisher[T]** type implements a generic, concurrent-safe publisher that distributes events of any **type T** to registered subscribers implementing the **NonBlockingSubscriber[T]** interface.
