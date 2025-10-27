@@ -1,15 +1,20 @@
 package main
 
-import "fmt"
+import "time"
 
 type StringSubscriber struct {
 	id string
+	c  chan string
 }
 
 func (s *StringSubscriber) ID() string {
 	return s.id
 }
 
-func (s *StringSubscriber) ReceiveUpdate(event string) {
-	fmt.Printf("Subscriber %s received event: %s\n", s.id, event)
+func (s *StringSubscriber) Channel() chan<- string {
+	return s.c
+}
+
+func (s *StringSubscriber) TimeoutThreshold() time.Duration {
+	return 1 * time.Second
 }
