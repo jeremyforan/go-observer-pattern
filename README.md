@@ -20,20 +20,17 @@ Here’s the **Markdown anchor-linked Table of Contents** version — ready to d
 ---
 
 ## Table of Contents
-
- - [Overview](#overview)
-
-   * [Features](#features)
- - [Installation](#installation)
- - [Full Example](#full-example)
- - [Subscriber Interface](#subscriber-interface)
- - [Publisher Usage](#publisher-usage)
-   
-   * [Adding and Removing Subscribers](#adding-and-removeing-subscribers)
-   * [Publishing Events](#publishing-events)
- - [Logging](#logging)
- - [Error Handling](#error-handling)
- - [On-going Development](#on-going-development)
+- [Overview](#overview)
+  * [Features](#features)
+- [Installation](#installation)
+- [Full Example](#full-example)
+- [Subscriber Interface](#subscriber-interface)
+- [Publisher Usage](#publisher-usage)
+  * [Adding and Removing Subscribers](#adding-and-removeing-subscribers)
+  * [Publishing Events](#publishing-events)
+- [Logging](#logging)
+- [Error Handling](#error-handling)
+- [On-going Development](#on-going-development)
 
 ---
 
