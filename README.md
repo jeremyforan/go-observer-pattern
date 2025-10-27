@@ -1,9 +1,12 @@
-# Go Observer Pattern
+ <h1 align="center">Go Observer Pattern</h1>
+ <p align="center">A lightweight, non-blocking generic implementation of the Observer Pattern for Go, inspired by <a href="https://refactoring.guru/design-patterns/observer">Refactoring Guru’s design pattern.</a>
+</p>
+<p align="center">
+	<a href="https://goreportcard.com/badge/github.com/jeremyforan/go-observer-pattern"><img src="https://goreportcard.com/badge/github.com/jeremyforan/go-observer-pattern" /></a>
+	<img alt="GitHub License" src="https://img.shields.io/github/license/jeremyforan/observer">
+</p>
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/jeremyforan/go-observer-pattern)](https://goreportcard.com/report/github.com/jeremyforan/go-observer-pattern)
-
-![GitHub License](https://img.shields.io/github/license/jeremyforan/observer)
-
+--- 
 
 A lightweight, non-blocking generic implementation of the Observer Pattern for Go, inspired by [Refactoring Guru’s design pattern](https://refactoring.guru/design-patterns/observer).
 
